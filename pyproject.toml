@@ -28,15 +28,18 @@ dependencies = ["pyyaml>=5.4"]
 rmkb-testgen = "robotmk_bridge_testdatagenerator.__main__:main"
 
 [project.urls]
-Homepage = "https://github.com/simonmeggle/robotmk-bridge-testdatagenerator"
-Issues = "https://github.com/simonmeggle/robotmk-bridge-testdatagenerator/issues"
+Homepage = "https://github.com/elabit/robotmk-bridge-testdatagenerator"
+Issues = "https://github.com/elabit/robotmk-bridge-testdatagenerator/issues"
+Changelog = "https://github.com/elabit/robotmk-bridge-testdatagenerator/blob/main/CHANGELOG.md"
+
+[dependency-groups]
+dev = [
+    "build>=1.0",
+    "hatchling>=1.18",
+]
 
 [tool.hatch.build.targets.wheel]
 packages = ["src/robotmk_bridge_testdatagenerator"]
-
-[tool.hatch.build.targets.wheel.shared-data]
-# handlers.yaml is included as package data, not shared-data
-# (it's inside the package directory, hatchling includes it automatically)
 
 [tool.hatch.build.targets.sdist]
 include = [
