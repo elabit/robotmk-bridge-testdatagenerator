@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.4.0](https://github.com/elabit/robotmk-bridge-testdatagenerator/compare/v0.3.0...v0.4.0) (2026-06-24)
+
+
+### Features
+
+* number of tests form commandline ([64c1842](https://github.com/elabit/robotmk-bridge-testdatagenerator/commit/64c1842609bf9084e5d8d59ec795b6deacae54e1))
+
 ## [0.3.0](https://github.com/elabit/robotmk-bridge-testdatagenerator/compare/v0.2.0...v0.3.0) (2026-06-24)
 
 
