@@ -1,0 +1,16 @@
+dist/
+build/
+*.egg-info/
+__pycache__/
+*.py[cod]
+.venv/
+.env
+*.whl
+*.tar.gz
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.claude
+_bmad-output
+docs
+_bmad
