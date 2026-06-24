@@ -20,6 +20,12 @@ Examples:
     # Continuous mode: regenerate every 5 seconds
     rmkb-testgen --continuous --interval 5
 
+    # Control item counts (all handlers)
+    rmkb-testgen --count 20
+
+    # Per-handler counts
+    rmkb-testgen -n junit=20 -n gatling=50 -n zaproxy=2
+
     # Use a custom handlers.yaml
     ROBOTMK_HANDLERS_YAML=/path/to/handlers.yaml rmkb-testgen
 """
@@ -31,6 +37,7 @@ import time
 from pathlib import Path
 
 from .generator import (
+    HANDLER_COUNT_KWARG,
     generate_all_handler_files,
     generate_handler_file,
     get_supported_handlers,
@@ -45,8 +52,57 @@ def signal_handler(signum, frame):
     print("\n\nShutdown requested. Stopping after current generation...")
 
 
+def _parse_counts(count_args) -> dict:
+    """Parse --count values into a {handler: {kwarg: n}} dict.
+
+    Accepts:
+      --count 10          → apply to all handlers
+      --count junit=10    → apply only to junit
+    """
+    if not count_args:
+        return {}
+
+    all_handlers = get_supported_handlers()
+    result = {}
+
+    for entry in count_args:
+        entry = entry.strip()
+        if "=" in entry:
+            handler, raw = entry.split("=", 1)
+            handler = handler.strip()
+            if handler not in all_handlers:
+                print(
+                    f"Error: Unknown handler '{handler}' in --count. "
+                    f"Known: {', '.join(all_handlers)}",
+                    file=sys.stderr,
+                )
+                sys.exit(1)
+            targets = [handler]
+        else:
+            raw = entry
+            targets = all_handlers
+
+        try:
+            n = int(raw)
+        except ValueError:
+            print(f"Error: --count value must be an integer, got: {raw!r}", file=sys.stderr)
+            sys.exit(1)
+        if n < 1:
+            print(f"Error: --count must be >= 1, got {n}", file=sys.stderr)
+            sys.exit(1)
+
+        for h in targets:
+            kwarg = HANDLER_COUNT_KWARG.get(h)
+            if kwarg:
+                result.setdefault(h, {})[kwarg] = n
+
+    return result
+
+
 def generate_files(args):
     """Generate test data files based on arguments."""
+    handler_kwargs = _parse_counts(args.count)
+
     if args.handlers:
         generated_files = {}
         for handler in args.handlers:
@@ -66,6 +122,7 @@ def generate_files(args):
                 handler_name=handler,
                 output_path=output_path,
                 test_status=args.status,
+                **handler_kwargs.get(handler, {}),
             )
             generated_files[handler] = output_path
     else:
@@ -73,6 +130,7 @@ def generate_files(args):
             output_dir=args.output_dir,
             test_status=args.status,
             filename_pattern=args.pattern,
+            handler_kwargs=handler_kwargs,
         )
     return generated_files
 
@@ -126,6 +184,17 @@ Examples:
         "-p", "--pattern",
         default="{handler}.{ext}",
         help="Filename pattern (default: {handler}.{ext})",
+    )
+    parser.add_argument(
+        "-n", "--count",
+        action="append",
+        metavar="[HANDLER=]N",
+        help=(
+            "Number of items to generate. "
+            "Use N to apply to all handlers, or HANDLER=N for a specific one. "
+            "Repeatable: -n junit=20 -n gatling=50. "
+            "Maps to: junit→num_tests, zaproxy→num_sites (max 3), gatling→num_requests."
+        ),
     )
     parser.add_argument(
         "-c", "--continuous",

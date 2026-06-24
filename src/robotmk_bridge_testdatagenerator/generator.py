@@ -11,6 +11,13 @@ from typing import Dict, List
 
 import yaml
 
+# Maps each handler name to the kwarg that controls its primary item count.
+HANDLER_COUNT_KWARG: Dict[str, str] = {
+    "junit": "num_tests",
+    "zaproxy": "num_sites",
+    "gatling": "num_requests",
+}
+
 
 def _open_handlers_yaml():
     """Return an open file-like object for handlers.yaml.
@@ -123,7 +130,8 @@ def generate_handler_file(
 def generate_all_handler_files(
     output_dir: Path,
     test_status: str = "passed",
-    filename_pattern: str = "{handler}.{ext}"
+    filename_pattern: str = "{handler}.{ext}",
+    handler_kwargs: Dict[str, Dict] = None,
 ) -> Dict[str, Path]:
     """Generate test result files for all supported handlers.
 
@@ -131,6 +139,8 @@ def generate_all_handler_files(
         output_dir: Directory where files should be written
         test_status: Test outcome - 'passed', 'failed', or 'mixed'
         filename_pattern: Pattern for output filenames (variables: {handler}, {ext})
+        handler_kwargs: Optional per-handler keyword arguments, e.g.
+            {"junit": {"num_tests": 20}, "gatling": {"num_requests": 50}}
 
     Returns:
         Dict mapping handler name to generated file path
@@ -150,6 +160,7 @@ def generate_all_handler_files(
         pass
 
     handlers = load_handlers_registry()
+    extra = handler_kwargs or {}
     generated_files = {}
 
     for handler_def in handlers:
@@ -160,7 +171,8 @@ def generate_all_handler_files(
         generate_handler_file(
             handler_name=handler_name,
             output_path=output_path,
-            test_status=test_status
+            test_status=test_status,
+            **extra.get(handler_name, {}),
         )
         generated_files[handler_name] = output_path
 
