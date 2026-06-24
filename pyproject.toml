@@ -1,0 +1,47 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "robotmk-bridge-testdatagenerator"
+version = "0.1.0"
+description = "Generates synthetic test result files (JUnit, ZAP, Gatling) for robotmk-bridge-plugin testing"
+readme = "README.md"
+license = { text = "MIT" }
+requires-python = ">=3.9"
+authors = [{ name = "Simon Meggle", email = "simon.meggle@checkmk.com" }]
+keywords = ["robotmk", "checkmk", "testing", "junit", "gatling", "zap", "test-data"]
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Intended Audience :: Developers",
+    "License :: OSI Approved :: MIT License",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Topic :: Software Development :: Testing",
+]
+dependencies = ["pyyaml>=5.4"]
+
+[project.scripts]
+rmkb-testgen = "robotmk_bridge_testdatagenerator.__main__:main"
+
+[project.urls]
+Homepage = "https://github.com/simonmeggle/robotmk-bridge-testdatagenerator"
+Issues = "https://github.com/simonmeggle/robotmk-bridge-testdatagenerator/issues"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/robotmk_bridge_testdatagenerator"]
+
+[tool.hatch.build.targets.wheel.shared-data]
+# handlers.yaml is included as package data, not shared-data
+# (it's inside the package directory, hatchling includes it automatically)
+
+[tool.hatch.build.targets.sdist]
+include = [
+    "src/",
+    "README.md",
+    "CHANGELOG.md",
+    "LICENSE",
+]
