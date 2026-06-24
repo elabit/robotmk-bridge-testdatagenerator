@@ -1,5 +1,17 @@
 # Changelog
 
+## [0.3.0](https://github.com/elabit/robotmk-bridge-testdatagenerator/compare/v0.2.0...v0.3.0) (2026-06-24)
+
+
+### Features
+
+* init commit, pypi init ([1d278e6](https://github.com/elabit/robotmk-bridge-testdatagenerator/commit/1d278e64b068e6b17a922cb3fe85ad330971e41c))
+
+
+### Bug Fixes
+
+* deleted publish workflow ([a046128](https://github.com/elabit/robotmk-bridge-testdatagenerator/commit/a046128ed5e7f9fcc2c271b89676f35ee37ca45e))
+
 ## [0.2.0](https://github.com/elabit/robotmk-bridge-testdatagenerator/compare/v0.1.0...v0.2.0) (2026-06-24)
 
 
