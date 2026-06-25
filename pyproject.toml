@@ -4,7 +4,7 @@ build-backend = "hatchling.build"
 
 [project]
 name = "robotmk-bridge-testdatagenerator"
-version = "0.3.0"
+version = "0.5.0"
 description = "Generates synthetic test result files (JUnit, ZAP, Gatling, Locust) for robotmk-bridge-plugin testing"
 readme = "README.md"
 license = { text = "MIT" }

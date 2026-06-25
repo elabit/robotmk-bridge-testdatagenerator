@@ -1,5 +1,13 @@
 # Changelog
 
+## [0.5.0](https://github.com/elabit/robotmk-bridge-testdatagenerator/compare/v0.4.0...v0.5.0) (2026-06-25)
+
+
+### Features
+
+* UV support, Locust, unit and acceptance tests ([9ff6c10](https://github.com/elabit/robotmk-bridge-testdatagenerator/commit/9ff6c1077a7fd5db66b523a9f12d600cc2b19aac))
+* UV support, Locust, unit and acceptance tests ([d461c80](https://github.com/elabit/robotmk-bridge-testdatagenerator/commit/d461c8096d53e4bdc65418a9a8b04362f85097aa))
+
 ## [0.4.0](https://github.com/elabit/robotmk-bridge-testdatagenerator/compare/v0.3.0...v0.4.0) (2026-06-24)
 
 
