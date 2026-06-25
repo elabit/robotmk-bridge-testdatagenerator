@@ -84,6 +84,7 @@ def generate_handler_file(
         "zaproxy": "zap",
         "junit": "junit",
         "gatling": "gatling",
+        "locust": "locust",
     }
     
     module_name = handler_to_module.get(handler_name, handler_name)

@@ -51,3 +51,11 @@ handlers:
         description: >
           Minimum confidence level of alerts to include (1=Low, 2=Medium, 3=High).
           Alerts below this confidence are ignored.
+
+  - name: locust
+    title: Locust
+    class_import: rmkbridge.locust.LocustHandler
+    result_ext: csv
+    description: >
+      Parses Locust load test result files (*_stats.csv) produced
+      by Locust performance testing runs.

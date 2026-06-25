@@ -1,10 +1,12 @@
-"""Test data generator for robotmk-bridge-plugin.
+"""Root-level convenience shim.
 
-This module generates realistic test result files for different handler types
-(JUnit, ZAP, Gatling). Used by both e2e tests and unit test fixtures.
+The canonical package lives in src/robotmk_bridge_testdatagenerator/.
+Prefer importing from there directly:
+
+    from robotmk_bridge_testdatagenerator import generate_all_handler_files
 """
 
-from .generator import (
+from robotmk_bridge_testdatagenerator import (
     generate_all_handler_files,
     generate_handler_file,
     get_supported_handlers,
