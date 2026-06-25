@@ -39,30 +39,29 @@ def generate(
         {"name": "http://192.168.50.56:7272", "host": "192.168.50.56", "port": "7272", "ssl": "false"},
     ][:num_sites]
     
-    # Get all available alert types - only use low risk (passing tests)
-    low_alerts = get_low_risk_alerts()
-    
-    # Generate sites with alerts (only low-risk = all passing)
+    if test_status == "passed":
+        alert_pool = get_low_risk_alerts()
+    elif test_status == "failed":
+        alert_pool = get_high_risk_alerts()
+    else:
+        alert_pool = get_mixed_risk_alerts()
+
     for site_idx, site_config in enumerate(sites):
         lines.append(f'<site name="{site_config["name"]}" host="{site_config["host"]}" '
                     f'port="{site_config["port"]}" ssl="{site_config["ssl"]}">')
         lines.append('<alerts>')
-        
-        # Randomize number of alerts per site (vary runtime simulation)
+
         num_alerts = random.randint(2, 6)
         site_alerts = []
-        
+
         for _ in range(num_alerts):
-            # Only choose low risk alerts (all tests pass)
-            alert = random.choice(low_alerts).copy()
-            
-            # Vary the number of instances (affects processing time)
+            alert = random.choice(alert_pool).copy()
             alert["max_instances"] = random.randint(1, 8)
             site_alerts.append(alert)
-        
+
         for alert in site_alerts:
             lines.extend(generate_alert_xml(alert, site_config, site_idx))
-        
+
         lines.append('</alerts>')
         lines.append('</site>')
     

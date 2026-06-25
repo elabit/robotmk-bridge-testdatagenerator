@@ -10,6 +10,7 @@ Produces realistic, randomized output in the formats consumed by the bridge plug
 | `junit` | JUnit XML | `.xml` | 5 test cases |
 | `zaproxy` | OWASP ZAP XML v2.7.0 | `.xml` | 3 sites |
 | `gatling` | Gatling simulation.log v2.0 | `.log` | 10 requests |
+| `locust` | Locust stats CSV | `.csv` | 5 endpoints |
 
 ---
 
@@ -45,8 +46,8 @@ uv tool uninstall robotmk-bridge-testdatagenerator
 git clone https://github.com/elabit/robotmk-bridge-testdatagenerator.git
 cd robotmk-bridge-testdatagenerator
 
-# Create venv + install package + dev deps in one step
-uv sync --group dev
+# Install package + all dev dependencies (pytest, ruff, etc.)
+uv sync
 
 # Run the CLI from source
 uv run rmkb-testgen --list
@@ -63,6 +64,32 @@ uv pip install -e .
 # Install local wheel into another project
 uv add /path/to/dist/robotmk_bridge_testdatagenerator-0.2.0-py3-none-any.whl
 ```
+
+---
+
+## Testing
+
+```bash
+# Run all tests (unit + acceptance)
+uv run pytest
+
+# Run with coverage report
+uv run pytest --cov
+
+# Run only unit tests
+uv run pytest tests/unit/
+
+# Run only acceptance tests (CLI + library API)
+uv run pytest tests/acceptance/
+
+# Lint
+uv run ruff check src/ tests/
+```
+
+| Test layer | Location | What it covers |
+| --- | --- | --- |
+| Unit | `tests/unit/` | Each generator in isolation: file creation, format validity, status semantics |
+| Acceptance | `tests/acceptance/` | CLI via subprocess (`rmkb-testgen`), public library API (`generate_*`) |
 
 ---
 
@@ -104,7 +131,7 @@ rmkb-testgen --handlers junit gatling --output-dir /tmp/test-data
 rmkb-testgen --count 20 --output-dir /tmp/test-data
 
 # Per-handler counts
-rmkb-testgen -n junit=20 -n gatling=50 -n zaproxy=2 --output-dir /tmp/test-data
+rmkb-testgen -n junit=20 -n gatling=50 -n zaproxy=2 -n locust=8 --output-dir /tmp/test-data
 
 # Continuous regeneration (Ctrl+C to stop)
 rmkb-testgen --continuous --interval 5 --output-dir /tmp/test-data
@@ -133,6 +160,7 @@ files = generate_all_handler_files(
         "junit":   {"num_tests": 20},
         "gatling": {"num_requests": 50},
         "zaproxy": {"num_sites": 2},
+        "locust":  {"num_endpoints": 8},
     },
 )
 
@@ -145,18 +173,18 @@ generate_handler_file(
 )
 
 # List available handlers
-handlers = get_supported_handlers()  # ['junit', 'gatling', 'zaproxy']
+handlers = get_supported_handlers()  # ['junit', 'gatling', 'zaproxy', 'locust']
 ```
 
 ---
 
 ## Test Status Semantics
 
-| Status | JUnit | ZAP | Gatling |
-|---|---|---|---|
-| `passed` | All pass | Low-risk alerts only | All requests OK |
-| `failed` | All fail | High-risk alerts | All requests KO |
-| `mixed` | Every 3rd fails | Low + medium risk | Every 4th KO |
+| Status | JUnit | ZAP | Gatling | Locust |
+| --- | --- | --- | --- | --- |
+| `passed` | All pass | Low-risk alerts only | All requests OK | 0 failures |
+| `failed` | All fail | High-risk alerts | All requests KO | 50%+ failures per endpoint |
+| `mixed` | Every 3rd fails | Low + medium risk | Every 4th KO | Every 2nd endpoint has failures |
 
 ---
 

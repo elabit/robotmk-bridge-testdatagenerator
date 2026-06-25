@@ -16,6 +16,7 @@ HANDLER_COUNT_KWARG: Dict[str, str] = {
     "junit": "num_tests",
     "zaproxy": "num_sites",
     "gatling": "num_requests",
+    "locust": "num_endpoints",
 }
 
 
@@ -92,6 +93,7 @@ def generate_handler_file(
         "zaproxy": "zap",
         "junit": "junit",
         "gatling": "gatling",
+        "locust": "locust",
     }
 
     module_name = handler_to_module.get(handler_name, handler_name)

@@ -193,7 +193,8 @@ Examples:
             "Number of items to generate. "
             "Use N to apply to all handlers, or HANDLER=N for a specific one. "
             "Repeatable: -n junit=20 -n gatling=50. "
-            "Maps to: junit→num_tests, zaproxy→num_sites (max 3), gatling→num_requests."
+            "Maps to: junit→num_tests, zaproxy→num_sites (max 3), "
+            "gatling→num_requests, locust→num_endpoints."
         ),
     )
     parser.add_argument(

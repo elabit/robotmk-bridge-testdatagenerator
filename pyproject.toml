@@ -4,13 +4,13 @@ build-backend = "hatchling.build"
 
 [project]
 name = "robotmk-bridge-testdatagenerator"
-version = "0.4.0"
-description = "Generates synthetic test result files (JUnit, ZAP, Gatling) for robotmk-bridge-plugin testing"
+version = "0.3.0"
+description = "Generates synthetic test result files (JUnit, ZAP, Gatling, Locust) for robotmk-bridge-plugin testing"
 readme = "README.md"
 license = { text = "MIT" }
 requires-python = ">=3.9"
 authors = [{ name = "Simon Meggle", email = "simon.meggle@checkmk.com" }]
-keywords = ["robotmk", "checkmk", "testing", "junit", "gatling", "zap", "test-data"]
+keywords = ["robotmk", "checkmk", "testing", "junit", "gatling", "zap", "locust", "test-data"]
 classifiers = [
     "Development Status :: 4 - Beta",
     "Intended Audience :: Developers",
@@ -36,7 +36,34 @@ Changelog = "https://github.com/elabit/robotmk-bridge-testdatagenerator/blob/mai
 dev = [
     "build>=1.0",
     "hatchling>=1.18",
+    "pytest>=8.0",
+    "pytest-cov>=5.0",
+    "ruff>=0.9",
 ]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+addopts = "--tb=short -q"
+
+[tool.coverage.run]
+source = ["src"]
+branch = true
+
+[tool.coverage.report]
+show_missing = true
+skip_empty = true
+
+[tool.ruff]
+target-version = "py39"
+line-length = 100
+
+[tool.ruff.lint]
+select = ["E", "F", "W", "I"]
+
+[tool.ruff.lint.per-file-ignores]
+# Long HTML-encoded strings in alert data are data, not code
+"src/robotmk_bridge_testdatagenerator/handlers/zap_generator.py" = ["E501"]
+"handlers/zap_generator.py" = ["E501"]
 
 [tool.hatch.build.targets.wheel]
 packages = ["src/robotmk_bridge_testdatagenerator"]

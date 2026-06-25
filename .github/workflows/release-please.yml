@@ -10,6 +10,21 @@ permissions:
   pull-requests: write
 
 jobs:
+  test:
+    name: Run tests
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@v4
+
+      - name: Install dependencies
+        run: uv sync
+
+      - name: Run tests
+        run: uv run pytest
+
   release-please:
     runs-on: ubuntu-latest
     outputs:
@@ -24,7 +39,7 @@ jobs:
 
   publish:
     name: Publish to PyPI
-    needs: release-please
+    needs: [test, release-please]
     if: ${{ needs.release-please.outputs.release_created == 'true' }}
     runs-on: ubuntu-latest
     environment:
@@ -37,14 +52,11 @@ jobs:
         with:
           ref: ${{ needs.release-please.outputs.tag_name }}
 
-      - uses: actions/setup-python@v5
-        with:
-          python-version: "3.x"
+      - name: Install uv
+        uses: astral-sh/setup-uv@v4
 
       - name: Build package
-        run: |
-          pip install build hatchling
-          python -m build
+        run: uv build
 
       - name: Publish to PyPI
         uses: pypa/gh-action-pypi-publish@release/v1

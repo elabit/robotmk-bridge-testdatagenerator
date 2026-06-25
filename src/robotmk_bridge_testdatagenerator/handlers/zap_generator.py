@@ -14,10 +14,10 @@ def generate(
     **kwargs
 ) -> None:
     """Generate an OWASP ZAP XML report file matching v2.7.0 format.
-    
+
     ZAP reports contain alerts with risk levels (0=Info, 1=Low, 2=Medium, 3=High)
     and confidence levels (0=Low, 1=Medium, 2=High, 3=Confirmed).
-    
+
     Args:
         output_path: Path where the XML file should be written
         test_status: 'passed' (low risk only), 'failed' (high risk), 'mixed' (varied)
@@ -28,46 +28,47 @@ def generate(
     # Generate timestamp in ZAP format: "Tue, 7 Aug 2018 13:17:56"
     now = datetime.now()
     timestamp = now.strftime("%a, %-d %b %Y %H:%M:%S")
-    
+
     lines = ['<?xml version="1.0"?>']
     lines.append(f'<OWASPZAPReport version="2.7.0" generated="{timestamp}">')
-    
+
     # Define sites to scan with varied number
     sites = [
         {"name": "http://localhost:7272", "host": "localhost", "port": "7272", "ssl": "false"},
         {"name": "http://127.0.0.1:7272", "host": "127.0.0.1", "port": "7272", "ssl": "false"},
         {"name": "http://192.168.50.56:7272", "host": "192.168.50.56", "port": "7272", "ssl": "false"},
     ][:num_sites]
-    
-    # Get all available alert types - only use low risk (passing tests)
-    low_alerts = get_low_risk_alerts()
-    
-    # Generate sites with alerts (only low-risk = all passing)
+
+    if test_status == "passed":
+        alert_pool = get_low_risk_alerts()
+    elif test_status == "failed":
+        alert_pool = get_high_risk_alerts()
+    else:
+        alert_pool = get_mixed_risk_alerts()
+
     for site_idx, site_config in enumerate(sites):
         lines.append(f'<site name="{site_config["name"]}" host="{site_config["host"]}" '
                     f'port="{site_config["port"]}" ssl="{site_config["ssl"]}">')
         lines.append('<alerts>')
-        
-        # Randomize number of alerts per site (vary runtime simulation)
+
         num_alerts = random.randint(2, 6)
         site_alerts = []
-        
+
         for _ in range(num_alerts):
-            # Only choose low risk alerts (all tests pass)
-            alert = random.choice(low_alerts).copy()
-            
+            alert = random.choice(alert_pool).copy()
+
             # Vary the number of instances (affects processing time)
             alert["max_instances"] = random.randint(1, 8)
             site_alerts.append(alert)
-        
+
         for alert in site_alerts:
             lines.extend(generate_alert_xml(alert, site_config, site_idx))
-        
+
         lines.append('</alerts>')
         lines.append('</site>')
-    
+
     lines.append('</OWASPZAPReport>\n')
-    
+
     # Write to file
     with open(output_path, "w", encoding="utf-8") as f:
         f.write("".join(lines))
@@ -76,7 +77,7 @@ def generate(
 def generate_alert_xml(alert_template: Dict, site_config: Dict, site_idx: int):
     """Generate XML lines for a single alert item."""
     lines = ['<alertitem>\n']
-    
+
     # Core alert info
     lines.append(f'  <pluginid>{alert_template["pluginid"]}</pluginid>\n')
     lines.append(f'  <alert>{alert_template["name"]}</alert>\n')
@@ -85,46 +86,46 @@ def generate_alert_xml(alert_template: Dict, site_config: Dict, site_idx: int):
     lines.append(f'  <confidence>{alert_template["confidence"]}</confidence>\n')
     lines.append(f'  <riskdesc>{alert_template["riskdesc"]}</riskdesc>\n')
     lines.append(f'  <desc>{alert_template["desc"]}</desc>\n')
-    
+
     # Instances - vary count to simulate different scan complexities/runtimes
     lines.append('  <instances>\n')
     max_instances = alert_template.get("max_instances", 3)
     num_instances = random.randint(1, max_instances)
-    
+
     for i in range(num_instances):
         lines.append('  <instance>\n')
-        
+
         # Generate URI variations
         base_url = site_config["name"]
         paths = alert_template.get("paths", ["/", "/index.html", "/api/data"])
         uri = f'{base_url}{random.choice(paths)}'
         lines.append(f'  <uri>{uri}</uri>\n')
-        
+
         method = random.choice(["GET", "POST"])
         lines.append(f'  <method>{method}</method>\n')
-        
+
         lines.append(f'  <param>{alert_template["param"]}</param>\n')
-        
+
         if "evidence" in alert_template:
             lines.append(f'  <evidence>{alert_template["evidence"]}</evidence>\n')
-        
+
         lines.append('  </instance>\n')
-    
+
     lines.append('  </instances>\n')
     lines.append(f'  <count>{num_instances}</count>\n')
-    
+
     # Solutions and references
     lines.append(f'  <solution>{alert_template["solution"]}</solution>\n')
-    
+
     if "otherinfo" in alert_template:
         lines.append(f'  <otherinfo>{alert_template["otherinfo"]}</otherinfo>\n')
-    
+
     lines.append(f'  <reference>{alert_template["reference"]}</reference>\n')
     lines.append(f'  <cweid>{alert_template["cweid"]}</cweid>\n')
     lines.append(f'  <wascid>{alert_template["wascid"]}</wascid>\n')
-    lines.append(f'  <sourceid>3</sourceid>\n')
+    lines.append('  <sourceid>3</sourceid>\n')
     lines.append('</alertitem>\n')
-    
+
     return lines
 
 
